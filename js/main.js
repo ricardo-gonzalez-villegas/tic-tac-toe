@@ -1,6 +1,12 @@
-const form = document.getElementById("player-form");
+"use strict";
 
+const playerTurn = document.querySelector(".player-turn");
+const form = document.getElementById("player-form");
 const reset = document.querySelector(".reset");
+const board = document.querySelector(".board");
+const gameArray = [];
+
+let gameOver = false;
 
 reset.addEventListener("click", () => {
   location.reload();
@@ -8,46 +14,40 @@ reset.addEventListener("click", () => {
 
 const Player = (name, mark) => {
   "use strict";
-  let playerName = name;
+  let _playerName = name;
 
-  let getMark = mark;
+  let _markCounter = 0;
 
-  let counter = 0;
+  const setName = newName => (_playerName = newName);
 
-  function increaseCount() {
-    counter++;
-  }
+  const increaseMarkCount = () => _markCounter++;
 
-  function getPlaced() {
-    return counter;
-  }
+  const getPlaced = () => _markCounter;
 
-  function setName(newName) {
-    playerName = newName;
-  }
+  const getName = () => _playerName;
 
-  function getName(){
-      return playerName;
-  }
+  const getMark = () => mark;
 
   return {
+    increaseMarkCount,
+    getPlaced,
     getName,
     getMark,
-    counter,
-    increaseCount,
-    getPlaced,
     setName
   };
 };
 
-let playerOneName = "player 1";
-let playerTwoName = "player 2";
+let playerOneName = "Player 1";
+let playerTwoName = "Player 2";
 
 const playerOne = Player(playerOneName, "x");
 const playerTwo = Player(playerTwoName, "o");
 
+let currentPlayer = playerOne;
+
 form.addEventListener("submit", function(event) {
   event.preventDefault();
+
   playerOneName = form.querySelector('input[name="playerOne"]').value;
   playerTwoName = form.querySelector('input[name="playerTwo"]').value;
 
@@ -57,36 +57,44 @@ form.addEventListener("submit", function(event) {
 
   playerOne.setName(playerOneName);
   playerTwo.setName(playerTwoName);
+
+  playerTurn.innerHTML = `${playerOne.getName()}'s turn.`;
+
+  form.remove();
 });
-
-let currentPlayer = playerOne;
-
-const gameArray = [];
 
 const gameBoard = (function() {
   "use strict";
 
-  function _setBoard(index, player) {
-    if (gameArray[index] == null) {
-      gameArray[index] = player.getMark;
-    }
-  }
+  const _setBoard = (index, player) => {
+    if (gameArray[index] == null) gameArray[index] = player.getMark();
+  };
 
-  function getBoard(index, player) {
-    _setBoard(index, player);
-  }
+  const getBoard = (index, player) => _setBoard(index, player);
 
   function checkBoard() {
     for (let i = 0; i < arguments.length; i++) {
       let currentArray = arguments[i];
-      let sameMark = 0;
+      let tally = 0;
+
       for (let j = 0; j < 3; j++) {
-        let currentMark = gameArray[currentArray[j]];
-        if (currentMark == currentPlayer.getMark) {
-          sameMark++;
-          if (sameMark == 3) alert("the winner is " + currentPlayer.getName());
-        } else sameMark = 0;
+        let mark = gameArray[currentArray[j]];
+
+        if (mark === currentPlayer.getMark()) {
+          tally++;
+
+          if (tally === 3) {
+            gameOver = true;
+            playerTurn.innerHTML = `The winner is ${currentPlayer.getName()}.`;
+            board.classList.add("game-over");
+            displayController.flashWinner(currentArray);
+          }
+        } else tally = 0;
       }
+    }
+    if (playerOne.getPlaced() === 5 && gameOver === false) {
+      gameOver = true;
+      playerTurn.innerHTML = "Draw.";
     }
   }
 
@@ -99,76 +107,68 @@ const gameBoard = (function() {
 const boardItems = document.querySelectorAll(".board-item");
 boardItems.forEach(boardItem => {
   boardItem.addEventListener("click", event => {
-    let index = event.target.id;
+    form.remove();
 
-    if (currentPlayer.getMark == "x") {
-      if (
-        event.target.classList.contains("cross") ||
-        event.target.classList.contains("knot")
-      ) {
+    let index = event.target.id;
+    const p = document.querySelector("p");
+    if (currentPlayer.getMark() == "x") {
+      if (event.target.dataset.value == "set") {
         return;
       } else {
+        event.target.dataset.value = "set";
         event.target.classList.add("cross");
+        event.target.lastChild.innerHTML = "X";
       }
-    } else if (currentPlayer.getMark == "o") {
-      if (
-        event.target.classList.contains("cross") ||
-        event.target.classList.contains("knot")
-      ) {
+    } else if (currentPlayer.getMark() == "o") {
+      if (event.target.dataset.value == "set") {
         return;
       } else {
+        event.target.dataset.value = "set";
         event.target.classList.add("knot");
+        event.target.lastChild.innerHTML = "O";
       }
     }
 
     gameBoard.getBoard(index, currentPlayer);
 
-    const p1 = [0, 1, 2];
-    const p2 = [3, 4, 5];
-    const p3 = [6, 7, 8];
-    const p4 = [0, 3, 6];
-    const p5 = [1, 4, 7];
-    const p6 = [2, 5, 8];
-    const p7 = [0, 4, 8];
-    const p8 = [2, 4, 6];
+    currentPlayer.increaseMarkCount();
 
-    currentPlayer.increaseCount();
     if (currentPlayer.getPlaced() >= 3) {
       switch (index) {
         case "0":
-          gameBoard.checkBoard(p1, p4, p7);
+          gameBoard.checkBoard([0, 1, 2], [0, 3, 6], [0, 4, 8]);
           break;
 
         case "1":
-          gameBoard.checkBoard(p1, p5);
+          gameBoard.checkBoard([0, 1, 2], [1, 4, 7]);
           break;
 
         case "2":
-          gameBoard.checkBoard(p1, p6, p8);
+          gameBoard.checkBoard([0, 1, 2], [2, 5, 8], [2, 4, 6]);
           break;
 
         case "3":
-          gameBoard.checkBoard(p2, p4);
+          gameBoard.checkBoard([3, 4, 5], [0, 3, 6]);
           break;
 
         case "4":
-          gameBoard.checkBoard(p2, p5, p7, p8);
+          gameBoard.checkBoard([3, 4, 5], [1, 4, 7], [0, 4, 8], [2, 4, 6]);
           break;
 
         case "5":
-          gameBoard.checkBoard(p2, p6);
+          gameBoard.checkBoard([3, 4, 5], [2, 5, 8]);
           break;
 
         case "6":
-          gameBoard.checkBoard(p3, p4, p8);
+          gameBoard.checkBoard([6, 7, 8], [0, 3, 6], [2, 4, 6]);
           break;
 
         case "7":
-          gameBoard.checkBoard(p3, p5);
+          gameBoard.checkBoard([6, 7, 8], [1, 4, 7]);
           break;
 
         case "8":
-          gameBoard.checkBoard(p3, p6, p7);
+          gameBoard.checkBoard([6, 7, 8], [2, 5, 8], [0, 4, 8]);
           break;
       }
     }
@@ -179,13 +179,25 @@ boardItems.forEach(boardItem => {
 const displayController = (function() {
   "use strict";
 
-  function getCurrent() {
-    currentPlayer.getMark === "x"
-      ? (currentPlayer = playerTwo)
-      : (currentPlayer = playerOne);
-  }
+  const getCurrent = () => {
+    if (gameOver !== true) {
+      currentPlayer.getMark() === "x"
+        ? (currentPlayer = playerTwo)
+        : (currentPlayer = playerOne);
+
+      playerTurn.innerHTML = `${currentPlayer.getName()}'s turn.`;
+    }
+  };
+
+  const flashWinner = array => {
+    for (let i = 0; i < array.length; i++) {
+    const winnerArray = document.getElementById(`${array[i]}`);
+    winnerArray.classList.add('blinking');
+    }
+  };
 
   return {
-    getCurrent
+    getCurrent,
+    flashWinner
   };
 })();

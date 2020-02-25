@@ -6,9 +6,61 @@
     <title>Tic-Tac-Toe</title>
     <link type="text/css" rel="stylesheet" href="./css/style.css" />
     <link type="text/css" rel="stylesheet" href="./css/reset.css" />
-    <script type="text/javascript" src="./js/main.js.js" defer></script>
+    <link
+      href="https://fonts.googleapis.com/css?family=Ubuntu&display=swap"
+      rel="stylesheet"
+    />
+    <script type="text/javascript" src="./js/main.js" defer></script>
   </head>
   <body>
+    <div class="title-container">
+      <h1 class="player-turn">Tic-Tac-Toe</h1>
+    </div>
+    <div class="container">
+      <div class="form-container">
+        <form id="player-form">
+          <div class="form-title">
+            <h2>Set custom names.</h2>
+          </div>
+          <label class="" for="playerOne"></label>
+          <input
+            type="text"
+            class="player"
+            name="playerOne"
+            placeholder="Player 1"
+            maxlength="10"
+          /><br />
+          <label class="" for="playerTwo"></label>
+          <input
+            type="text"
+            class="player"
+            name="playerTwo"
+            placeholder="Player 2"
+            maxlength="10"
+          /><br />
+          <button class="start">Start</button>
+        </form>
+      </div>
+      <div class="board">
+        <div class="row">
+          <div class="board-item" id="0"><p></p></div>
+          <div class="board-item vertical" id="1"><p></p></div>
+          <div class="board-item" id="2"><p></p></div>
+        </div>
+        <div class="row">
+          <div class="board-item horizontal" id="3"><p></p></div>
+          <div class="board-item horizontal vertical" id="4"><p></p></div>
+          <div class="board-item horizontal" id="5"><p></p></div>
+        </div>
+        <div class="row">
+          <div class="board-item" id="6"><p></p></div>
+          <div class="board-item vertical" id="7"><p></p></div>
+          <div class="board-item" id="8"><p></p></div>
+        </div>
+      </div>
+    </div>
+    <div class="reset-container">
+      <button class="reset">Reset</button>
+    </div>
   </body>
 </html>
- 
