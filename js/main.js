@@ -110,9 +110,8 @@ boardItems.forEach(boardItem => {
     form.remove();
 
     let index = event.target.id;
-    const p = document.querySelector("p");
     if (currentPlayer.getMark() == "x") {
-      if (event.target.dataset.value == "set") {
+      if (event.target.dataset.value == "set" || event.target.lastChild.classList.contains('knot')) {
         return;
       } else {
         event.target.dataset.value = "set";
@@ -120,7 +119,7 @@ boardItems.forEach(boardItem => {
         event.target.lastChild.innerHTML = "X";
       }
     } else if (currentPlayer.getMark() == "o") {
-      if (event.target.dataset.value == "set") {
+      if (event.target.dataset.value == "set" || event.target.lastChild.classList.contains('cross')) {
         return;
       } else {
         event.target.dataset.value = "set";
@@ -181,7 +180,7 @@ const displayController = (function() {
 
   const getCurrent = () => {
     if (gameOver !== true) {
-      currentPlayer.getMark() === "x"
+      currentPlayer.getMark() == "x"
         ? (currentPlayer = playerTwo)
         : (currentPlayer = playerOne);
 
